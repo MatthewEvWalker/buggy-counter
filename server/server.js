@@ -36,7 +36,12 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://buggy-counter.vercel.app/'],
+    methods: ["POST", "GET"],
+    credentials: true
+}));
+
 app.use(bodyParser.json());
 
 let buggies = [];
