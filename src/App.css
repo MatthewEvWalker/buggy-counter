@@ -5,6 +5,12 @@
   padding: 1rem;
 }
 
+h1 {
+  background-color: aquamarine;
+  text-align: center;
+  /* width: 10%; */
+}
+
 table {
   border-collapse: collapse;
   width: 100%;

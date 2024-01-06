@@ -1,14 +1,44 @@
-import React, { useState } from "react";
-import "./App.css";
-import data from "./db.json";
-import buggy from "./svg/Group 1.svg"
-// import Table from './table';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import "./App.css"
 
 function App() {
-  const [buggies, setBuggies] = useState(data);
+  const [buggies, setBuggies] = useState([]);
+  const [addBuggyData, setAddBuggyData] = useState({
+    color: '',
+    location: '',
+    date: '',
+  });
 
+  useEffect(() => {
+    axios.get('http://localhost:3001/buggies')
+      .then(response => setBuggies(response.data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
+  const handleAddFormChange = (e) => {
+    e.preventDefault();
+    const fieldName = e.target.getAttribute('name');
+    const fieldValue = e.target.value;
+    setAddBuggyData((prevData) => ({ ...prevData, [fieldName]: fieldValue }));
+  };
+
+  const handleAddFormSubmit = (e) => {
+    e.preventDefault();
+
+    axios.post('http://localhost:3001/buggies', addBuggyData)
+      .then(response => setBuggies([...buggies, response.data]))
+      .catch(error => console.error('Error adding new buggy:', error));
+
+    setAddBuggyData({
+      color: '',
+      location: '',
+      date: '',
+    });
+  };
   return (
     <div className="container">
+      <h1>Buggies List</h1>
       <table>
         <thead>
           <tr>
@@ -20,7 +50,7 @@ function App() {
         </thead>
         <tbody>
           {buggies.map((buggy) => (
-            <tr>
+            <tr key={buggy.id}>
               <td>{buggy.image}</td>
               <td>{buggy.color}</td>
               <td>{buggy.location}</td>
@@ -30,66 +60,47 @@ function App() {
         </tbody>
       </table>
       <h2>Add Buggy</h2>
-      <img src={buggy}></img>
-      <form>
-        <input type="text" name="color" required="required" placeholder="Enter a buggy color..."></input>
-        <input type="text" name="location" required="required" placeholder="Enter the buggy location..."></input>
-        <input type="text" name="date" required="required" placeholder="Enter the date..."></input>
+      <form onSubmit={handleAddFormSubmit}>
+        <div>
+          <label htmlFor="color">Select Color:</label>
+          <select 
+            name="color"
+            placeholder="Enter a buggy color..."
+            value={addBuggyData.color} 
+            onChange={handleAddFormChange}
+            required
+          >
+            <option value="" disabled>Select a color</option>
+            <option value="Red" >Red</option>
+            <option value="Blue" >Blue</option>
+            <option value="Green" >Green</option>
+            <option value="Orange" >Orange</option>
+            <option value="Gray" >Gray</option>
+            <option value="White" >White</option>
+            <option value="Black" >Black</option>
 
+          </select>
+        </div>
+        <input
+          type="text"
+          name="location"
+          required
+          placeholder="Enter the buggy location..."
+          value={addBuggyData.location}
+          onChange={handleAddFormChange}
+        />
+        <input
+          type="text"
+          name="date"
+          required
+          placeholder="Enter the date..."
+          value={addBuggyData.date}
+          onChange={handleAddFormChange}
+        />
+        <button type="submit">Add</button>
       </form>
     </div>
   );
 }
 
 export default App;
-
-// const [color, setColor] = useState('');
-//   const [date, setDate] = useState('');
-//   const [location, setLocation] = useState('');
-//   const [carData, setCarData] = useState([]);
-
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-
-//   const saveData = () => {
-//     axios.post('/save_data', { color, date, location })
-//       .then(response => {
-//         if (response.data.status === 'success') {
-//           fetchData();
-//         }
-//       })
-//       .catch(error => console.error('Error saving data:', error));
-//   };
-
-//   const fetchData = () => {
-//     axios.get('/get_data')
-//       .then(response => setCarData(response.data.data))
-//       .catch(error => console.error('Error fetching data:', error));
-//   };
-
-//   return (
-//     <div>
-//       <h1>Car Data Collection</h1>
-//       <form>
-//         <label htmlFor="color">Color:</label>
-//         <input type="text" id="color" value={color} onChange={(e) => setColor(e.target.value)} required />
-//         <br />
-//         <label htmlFor="date">Date:</label>
-//         <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-//         <br />
-//         <label htmlFor="location">Location:</label>
-//         <input type="text" id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
-//         <br />
-//         <button type="button" onClick={saveData}>Save</button>
-//       </form>
-//       <h2>Car Data List</h2>
-//       <ul>
-//         {carData.map((item, index) => (
-//           <li key={index}>
-//             Color: {item.color}, Date: {item.date}, Location: {item.location}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
